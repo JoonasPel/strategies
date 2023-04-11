@@ -3,6 +3,7 @@ import os
 import numpy as np
 
 def readfile(skip_x_rows):
+    print("Loading data...")
     files = os.listdir("crypto_data/")
     csv_files = list(filter(lambda f: f.endswith('.csv'), files))
 
@@ -22,5 +23,5 @@ def readfile(skip_x_rows):
             values = np.append(values, float(row['open']))
         values = np.flip(values, axis=0)
         file.close()
-
+        print("data loading done")
         return values
