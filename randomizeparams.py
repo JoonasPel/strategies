@@ -14,20 +14,20 @@ def get_params():
     
     with open("params.pkl", "rb") as file:
         params = pickle.load(file)
-
+    params["SHORT_OUT_TIMEOUT"] = 126
     # randomly change one param -2% or +2%. DONT CHANGE FEE ! I know this is bad way to do it
     key, value = 0, 0
     while True:
         key, value = random.choice(list(params.items()))
-        if key != "SHORTING_FEE":
+        if key not in {"SHORTING_FEE", "SHORT_OUT_TIMEOUT"}:
             break
-    multiplier = random.randint(95, 105) / 100
+    multiplier = random.randint(85, 115) / 100
     new_value = value * multiplier
     # rounding the value depends of what parameter it is
     if key in {"MINS_TO_CHECK_FROM_HISTORY", "SHORT_OUT_TIMEOUT"}:
         params[key] = round(new_value)
     else:
-        params[key] = round(new_value, 8)
+        params[key] = round(new_value, 4)  # not too much decimals to prevent overfit
     print(params)
 
     # # change in some range. fee not changed

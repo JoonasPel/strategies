@@ -29,7 +29,9 @@ def simulation(values, params, ENABLE_PRINTS):
                         val >= current_value * (1+STOP_LOSS_THRESHOLD):
                         # short out happens
                         profit_from_trade = (current_value - val) - (current_value * SHORTING_FEE)
-                        total_profit += profit_from_trade
+                        # normalize profit
+                        normalized_profit = profit_from_trade / current_value
+                        total_profit += normalized_profit
                         if ENABLE_PRINTS:
                             print(f"""
                             value when short in -> {current_value}
@@ -41,7 +43,9 @@ def simulation(values, params, ENABLE_PRINTS):
                 if not short_outted:
                     value_at_out = values[i+SHORT_OUT_TIMEOUT+1]
                     profit_from_trade = (current_value - value_at_out) - (current_value * SHORTING_FEE)
-                    total_profit += profit_from_trade
+                    # normalize profit
+                    normalized_profit = profit_from_trade / current_value
+                    total_profit += normalized_profit
                     if ENABLE_PRINTS:
                         print(f"time limit. val in {current_value}, val out {value_at_out}")
                 # jump in time so we dont short almost the same opportunity every minute.
