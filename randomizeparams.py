@@ -1,7 +1,7 @@
 import random
 import pickle
 
-def get_params():
+def get_params(defaults):
     # defaults
     # params = {
     #     "SHORTING_FEE": 0.0002,  # 0.02% for opening a margin position + 0.02% for every 4 hours
@@ -14,6 +14,9 @@ def get_params():
     
     with open("params.pkl", "rb") as file:
         params = pickle.load(file)
+    if defaults:
+        return params
+
     params["SHORT_OUT_TIMEOUT"] = 126
     # randomly change one param -2% or +2%. DONT CHANGE FEE ! I know this is bad way to do it
     key, value = 0, 0

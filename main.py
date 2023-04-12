@@ -1,4 +1,5 @@
 import time
+import concurrent.futures
 import signal
 from simulation import simulation
 from savedata import save_to_csv
@@ -13,6 +14,11 @@ def handler(signum, frame):
     if res == 'y':
         exit(1)
 
+def run_simulation(values, params):
+    normalized_profit = simulation(values, params, ENABLE_PRINTS=False)
+    normalized_profit = round(normalized_profit, 4)
+    return normalized_profit
+
 if __name__ == '__main__':
     # catch ctrl C to draw some graphs
     signal.signal(signal.SIGINT, handler)
@@ -20,22 +26,25 @@ if __name__ == '__main__':
     # load different crypto data
     data = readfile(0)
 
-    ENABLE_PRINTS = False
+    THREADS = 9
     params_history = []  # to draw graphs how params changed over time
-    best_profit_so_far = 0.3
+    best_profit_so_far = 1.418
     loops_since_best_profit = -1
     i = 0
     while i < 50000:
-        params = get_params()
+        params = get_params(defaults=False)
 
         #t0 = time.time()
         # to simulation to all cryptos loaded
         total_profit = 0
-        for crypto_x_values in data:
-            normalized_profit = simulation(crypto_x_values, params, ENABLE_PRINTS)
-            normalized_profit = round(normalized_profit, 4)
-            total_profit += normalized_profit
-            print(normalized_profit)
+        # multiprocess simulations as they do not affect each other
+        with concurrent.futures.ProcessPoolExecutor(max_workers=THREADS) as executor:
+            futures = [executor.submit(run_simulation, values, params) for values in data]
+            # loops in same order as called and waits for finish in result()
+            for future in futures:
+                result = future.result()
+                print(future.result())
+                total_profit += result
         print(f"total --> {total_profit}")
         # time_elapsed = time.time() - t0
         # if time_elapsed > 35:
